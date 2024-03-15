@@ -412,6 +412,7 @@ public class RefundApplyServiceImpl extends ServiceImpl<RefundApplyMapper, Refun
         UserContext.setUser(refundApply.getApprover());
         // 2.判断结果，支付宝支付有可能直接返回退款成功结果，微信只会返回退款中
         RefundApply r = new RefundApply();
+
         r.setId(refundApply.getId());
         r.setRefundChannel(result.getRefundChannel());
         r.setRefundOrderNo(result.getRefundOrderNo());
