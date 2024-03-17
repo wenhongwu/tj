@@ -89,5 +89,4 @@ public class LearningLesson implements Serializable {
      */
     private LocalDateTime updateTime;
 
-
 }
