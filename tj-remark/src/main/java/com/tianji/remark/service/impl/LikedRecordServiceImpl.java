@@ -122,7 +122,7 @@ public class LikedRecordServiceImpl extends ServiceImpl<LikedRecordMapper, Liked
         statService.updateLiedTimes(bizType, list);
     }
 
-    private boolean unlike(LikeRecordFormDTO recordDTO) {
+    /*private boolean unlike(LikeRecordFormDTO recordDTO) {
         return remove(new QueryWrapper<LikedRecord>()
                 .lambda()
                 .eq(LikedRecord::getUserId, UserContext.getUser())
@@ -149,6 +149,25 @@ public class LikedRecordServiceImpl extends ServiceImpl<LikedRecordMapper, Liked
         save(likedRecord);
         return true;
 
+    }*/
+    private boolean unlike(LikeRecordFormDTO recordDTO) {
+        // 1.获取用户id
+        Long userId = UserContext.getUser();
+        // 2.获取Key
+        String key = RedisConstants.LIKE_BIZ_KEY_PREFIX + recordDTO.getBizId();
+        // 3.执行SREM命令
+        Long result = redisTemplate.opsForSet().remove(key, userId.toString());
+        return result != null && result > 0;
+    }
+
+    private boolean like(LikeRecordFormDTO recordDTO) {
+        // 1.获取用户id
+        Long userId = UserContext.getUser();
+        // 2.获取Key
+        String key = RedisConstants.LIKE_BIZ_KEY_PREFIX + recordDTO.getBizId();
+        // 3.执行SADD命令
+        Long result = redisTemplate.opsForSet().add(key, userId.toString());
+        return result != null && result > 0;
     }
 
 
