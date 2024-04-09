@@ -23,5 +23,5 @@ public interface IPointsRecordService extends IService<PointsRecord> {
 
     void createPointsRecordTableBySeason(Integer season);
 
-    List<PointsRecord> queryCurrentRecordList(Integer pageSize, Integer pageNo, Integer season);
+    List<PointsRecord> queryCurrentRecordList(Integer pageSize, Integer pageNo);
 }

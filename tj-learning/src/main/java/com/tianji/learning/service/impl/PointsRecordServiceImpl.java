@@ -108,10 +108,7 @@ public class PointsRecordServiceImpl extends ServiceImpl<PointsRecordMapper, Poi
     }
 
     @Override
-    public List<PointsRecord> queryCurrentRecordList(Integer pageSize, Integer pageNo, Integer season) {
-        // 1.计算表名
-        TableInfoContext.setInfo(POINT_RECORD_TABLE_PREFIX + season);
-        // 2.查询数据
+    public List<PointsRecord> queryCurrentRecordList(Integer pageSize, Integer pageNo) {
         PageQuery pageQuery = new PageQuery();
         pageQuery.setPageNo(pageNo);
         pageQuery.setPageSize(pageSize);

@@ -65,13 +65,16 @@ public class PointsRecordPersistentHandler {
         int pageNo = index + 1;
         int pageSize = 10;
         while (true) {
-            List<PointsRecord> list = recordService.queryCurrentRecordList(pageNo, pageSize, season);
+            List<PointsRecord> list = recordService.queryCurrentRecordList(pageNo, pageSize);
 
             if (CollUtils.isEmpty(list)) {
                 break;
             }
+            // 1.计算表名
+            TableInfoContext.setInfo(POINT_RECORD_TABLE_PREFIX + season);
             // 4.持久化到数据库
             recordService.saveBatch(list);
+            TableInfoContext.remove();
             // 5.翻页
             pageNo += total;
         }
