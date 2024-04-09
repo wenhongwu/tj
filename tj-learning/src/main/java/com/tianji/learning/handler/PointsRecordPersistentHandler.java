@@ -39,7 +39,7 @@ public class PointsRecordPersistentHandler {
     private final IPointsBoardSeasonService seasonService;
 
     @XxlJob("createRecordTableJob")
-    public void createPointBoardTableOfLastSeason() {
+    public void createPointRecordTableOfLastSeason() {
         // 1.获取上月时间
         LocalDateTime time = LocalDateTime.now().minusMonths(1);
         // 2.查询赛季id
@@ -53,7 +53,7 @@ public class PointsRecordPersistentHandler {
     }
 
     @XxlJob("savePointsRecord2DB")
-    public void savePointsBoard2DB() {
+    public void savePointsRecordDB() {
         // 1.获取上月时间
         LocalDateTime time = LocalDateTime.now().minusMinutes(1);
         // 2.计算动态表明
@@ -80,7 +80,7 @@ public class PointsRecordPersistentHandler {
 
 
     @XxlJob("clearPointsRecordFromMySQL")
-    public void clearPointsBoardFromRedis() {
+    public void clearPointsRecordFromRedis() {
         // wrapper用来生成where语句，为空则全部删除
         recordService.remove(new QueryWrapper<>());
     }
