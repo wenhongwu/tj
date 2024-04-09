@@ -20,4 +20,6 @@ public interface IPointsRecordService extends IService<PointsRecord> {
     void addPointRecord(Long userId, Integer points, PointsRecordType sign);
 
     List<PointsStatisticsVO> queryMyPointsToday();
+
+    void createPointsRecordTableBySeason(Integer season);
 }

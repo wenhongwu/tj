@@ -1,0 +1,59 @@
+package com.tianji.learning.handler;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.tianji.common.utils.CollUtils;
+import com.tianji.common.utils.DateUtils;
+import com.tianji.learning.constants.RedisConstants;
+import com.tianji.learning.domain.po.PointsBoard;
+import com.tianji.learning.service.IPointsBoardSeasonService;
+import com.tianji.learning.service.IPointsBoardService;
+import com.tianji.learning.service.IPointsRecordService;
+import com.tianji.learning.utils.TableInfoContext;
+import com.xxl.job.core.context.XxlJobHelper;
+import com.xxl.job.core.handler.annotation.XxlJob;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static com.tianji.learning.constants.LearningConstant.POINTS_BOARD_TABLE_PREFIX;
+import static com.tianji.learning.constants.LearningConstant.POINT_RECORD_TABLE_PREFIX;
+
+/**
+ * @author whw
+ * @title: PointsRecordPersistentHandler
+ * @projectName tjxt
+ * @description: TODO
+ * @date 2024/4/9 15:14
+ */
+
+@Component
+@RequiredArgsConstructor
+public class PointsRecordPersistentHandler {
+
+    private final IPointsRecordService recordService;
+    private final IPointsBoardSeasonService seasonService;
+
+    @XxlJob("createRecordTableAndSaveDate2DBJob")
+    public void createPointBoardTableOfLastSeason() {
+        // 1.获取上月时间
+        LocalDateTime time = LocalDateTime.now().minusMonths(1);
+        // 2.查询赛季id
+        Integer season = seasonService.querySeasonByTime(time);
+        if (season == null) {
+            // 赛季不存在
+            return;
+        }
+        // 3.创建表,并复制数据到新表
+        recordService.createPointsRecordTableBySeason(season);
+    }
+
+
+    @XxlJob("clearPointsRecordFromMySQL")
+    public void clearPointsBoardFromRedis() {
+        // wrapper用来生成where语句，为空则全部删除
+        recordService.remove(new QueryWrapper<>());
+    }
+}

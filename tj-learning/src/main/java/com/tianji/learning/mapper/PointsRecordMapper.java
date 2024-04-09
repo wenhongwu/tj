@@ -24,4 +24,6 @@ public interface PointsRecordMapper extends BaseMapper<PointsRecord> {
 
     @Select("SELECT type, SUM(points) AS points FROM points_record ${ew.customSqlSegment}")
     List<PointsRecord> queryUserPointsByDate(@Param(Constants.WRAPPER) QueryWrapper<PointsRecord> wrapper);
+
+    void createPointsRecordTable(@Param("tableName") String tableName);
 }

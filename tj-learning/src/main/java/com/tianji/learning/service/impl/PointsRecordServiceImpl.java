@@ -4,17 +4,23 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tianji.common.utils.CollUtils;
 import com.tianji.common.utils.DateUtils;
 import com.tianji.common.utils.UserContext;
+import com.tianji.learning.constants.RedisConstants;
 import com.tianji.learning.domain.po.PointsRecord;
 import com.tianji.learning.domain.vo.PointsStatisticsVO;
 import com.tianji.learning.enums.PointsRecordType;
 import com.tianji.learning.mapper.PointsRecordMapper;
 import com.tianji.learning.service.IPointsRecordService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.tianji.learning.constants.LearningConstant.POINTS_BOARD_TABLE_PREFIX;
+import static com.tianji.learning.constants.LearningConstant.POINT_RECORD_TABLE_PREFIX;
 
 /**
  * <p>
@@ -25,7 +31,10 @@ import java.util.List;
  * @since 2024-04-07
  */
 @Service
+@RequiredArgsConstructor
 public class PointsRecordServiceImpl extends ServiceImpl<PointsRecordMapper, PointsRecord> implements IPointsRecordService {
+
+    private final StringRedisTemplate redisTemplate;
 
     @Override
     public void addPointRecord(Long userId, Integer points, PointsRecordType type) {
@@ -56,6 +65,9 @@ public class PointsRecordServiceImpl extends ServiceImpl<PointsRecordMapper, Poi
         p.setUserId(userId);
         p.setType(type);
         save(p);
+        //4.更新总积分到Redis
+        String key = RedisConstants.POINTS_BOARD_KEY_PREFIX + now.format(DateUtils.POINTS_BOARD_SUFFIX_FORMATTER);
+        redisTemplate.opsForZSet().incrementScore(key, userId.toString(), realPoints);
     }
 
     @Override
@@ -86,6 +98,11 @@ public class PointsRecordServiceImpl extends ServiceImpl<PointsRecordMapper, Poi
             vos.add(vo);
         }
         return vos;
+    }
+
+    @Override
+    public void createPointsRecordTableBySeason(Integer season) {
+        getBaseMapper().createPointsRecordTable(POINT_RECORD_TABLE_PREFIX + season);
     }
 
     private int queryUserPointsByTypeAndDate(Long userId, PointsRecordType type, LocalDateTime begin, LocalDateTime end) {
