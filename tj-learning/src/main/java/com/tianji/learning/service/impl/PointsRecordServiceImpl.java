@@ -1,6 +1,8 @@
 package com.tianji.learning.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tianji.common.domain.query.PageQuery;
 import com.tianji.common.utils.CollUtils;
 import com.tianji.common.utils.DateUtils;
 import com.tianji.common.utils.UserContext;
@@ -11,6 +13,7 @@ import com.tianji.learning.enums.PointsRecordType;
 import com.tianji.learning.mapper.PointsRecordMapper;
 import com.tianji.learning.service.IPointsRecordService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.tianji.learning.utils.TableInfoContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -19,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tianji.learning.constants.LearningConstant.POINTS_BOARD_TABLE_PREFIX;
 import static com.tianji.learning.constants.LearningConstant.POINT_RECORD_TABLE_PREFIX;
 
 /**
@@ -103,6 +105,22 @@ public class PointsRecordServiceImpl extends ServiceImpl<PointsRecordMapper, Poi
     @Override
     public void createPointsRecordTableBySeason(Integer season) {
         getBaseMapper().createPointsRecordTable(POINT_RECORD_TABLE_PREFIX + season);
+    }
+
+    @Override
+    public List<PointsRecord> queryCurrentRecordList(Integer pageSize, Integer pageNo, Integer season) {
+        // 1.计算表名
+        TableInfoContext.setInfo(POINT_RECORD_TABLE_PREFIX + season);
+        // 2.查询数据
+        PageQuery pageQuery = new PageQuery();
+        pageQuery.setPageNo(pageNo);
+        pageQuery.setPageSize(pageSize);
+        Page<PointsRecord> page = page(pageQuery.toMpPage());
+        List<PointsRecord> records = page.getRecords();
+        if (CollUtils.isEmpty(records)) {
+            return CollUtils.emptyList();
+        }
+        return records;
     }
 
     private int queryUserPointsByTypeAndDate(Long userId, PointsRecordType type, LocalDateTime begin, LocalDateTime end) {

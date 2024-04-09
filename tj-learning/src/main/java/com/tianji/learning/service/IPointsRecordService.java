@@ -22,4 +22,6 @@ public interface IPointsRecordService extends IService<PointsRecord> {
     List<PointsStatisticsVO> queryMyPointsToday();
 
     void createPointsRecordTableBySeason(Integer season);
+
+    List<PointsRecord> queryCurrentRecordList(Integer pageSize, Integer pageNo, Integer season);
 }
